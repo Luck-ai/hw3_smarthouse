@@ -8,9 +8,16 @@ public class LuckyScript : MonoBehaviour
 
     [SerializeField] private GameObject mainMenu;
     [SerializeField] private GameObject livingRoomMenu;
+    [SerializeField] private GameObject livingRoomWashroomMenu;
+    [SerializeField] private GameObject masterBedroomMenu;
 
     [SerializeField] private Button livingRoomButton;
     [SerializeField] private Button livingRoomBackButton;
+    [SerializeField] private Button livingRoomWashroomButton;
+    [SerializeField] private Button livingRoomWashroomBackButton;
+    [SerializeField] private Button masterBedroomMenuButton;
+    [SerializeField] private Button masterBedroomBackButton;
+
     [Header("Menu Theme")]
 
     [SerializeField] private Color panelColor = new Color32(13, 17, 24, 190);
@@ -25,10 +32,8 @@ public class LuckyScript : MonoBehaviour
     [SerializeField] private Color sliderBackgroundColor = new Color32(37, 50, 74, 255);
     [SerializeField] private Color sliderFillColor = new Color32(110, 99, 215, 255);
     [SerializeField] private Color sliderHandleColor = new Color32(244, 246, 255, 255);
+
     [Header("Main Gate")]
-
-
-
     [SerializeField] private GameObject leftGate;
     [SerializeField] private GameObject rightGate;
     [SerializeField, Range(0.1f, 5f)] private float gateRotationSpeed = 1.2f;
@@ -112,14 +117,112 @@ public class LuckyScript : MonoBehaviour
     private float TableChangedx;
     private float TableChangedz;
 
+    [Header("Living Room Washroom")]
+
+    [SerializeField] private GameObject WashroomDoor;
+    [SerializeField] private Button WashroomDoorButton;
+    [SerializeField] private GameObject WashroomSeat;
+    [SerializeField] private Button WashroomSeatButton;
+    [SerializeField] private GameObject WashroomFlush;
+    [SerializeField] private Button WashroomFlushButton;
+    [SerializeField, Range(0.1f, 5f)] private float washroomRotationSpeed = 1.2f;
+    [SerializeField] private float flushPressDistance = 0.04f;
+    [SerializeField] private float flushMoveSpeed = 0.25f;
+
+    private bool isWashroomDoorOpen;
+    private bool isWashroomSeatOpen;
+    private bool isWashroomFlushPressed;
+    private float flushHoldTimer;
+    private Quaternion initialWashroomDoorPosition;
+    private Quaternion openWashroomDoorPosition;
+    private Quaternion initialWashroomSeatPosition;
+    private Quaternion openWashroomSeatPosition;
+    private Vector3 initialWashroomFlushPosition;
+    private Vector3 pressedWashroomFlushPosition;
+
+    [Header("Living Room Washroom Middle Cabinet")]
+
+    [SerializeField] private GameObject RightDoor;
+    [SerializeField] private GameObject LeftDoor;
+    [SerializeField] private Button MiddleCabinetButton;
+
+    private bool isMiddleCabinetOpen;
+    private Quaternion initialRightCabinetDoorPosition;
+    private Quaternion openRightCabinetDoorPosition;
+    private Quaternion initialLeftCabinetDoorPosition;
+    private Quaternion openLeftCabinetDoorPosition;
+
+    [Header("Living Room Washroom Drawers")]
+
+    [SerializeField] private GameObject TopDrawerL;
+    [SerializeField] private GameObject MiddleDrawerL;
+    [SerializeField] private GameObject BottomDrawerL;
+    [SerializeField] private TMP_Dropdown DrawerLDropdown;
+
+    [SerializeField] private GameObject TopDrawerR;
+    [SerializeField] private GameObject MiddleDrawerR;
+    [SerializeField] private GameObject BottomDrawerR;
+    [SerializeField] private TMP_Dropdown DrawerRDropdown;
+
+    private const float ClosedDrawerY = -0.0059f;
+    private const float OpenDrawerY = -0.00806f;
+    private const float DrawerMoveSpeed = 0.004f;
+
+    private int selectedLeftDrawer;
+    private int selectedRightDrawer;
+    private Vector3 topDrawerLClosedPosition;
+    private Vector3 middleDrawerLClosedPosition;
+    private Vector3 bottomDrawerLClosedPosition;
+    private Vector3 topDrawerRClosedPosition;
+    private Vector3 middleDrawerRClosedPosition;
+    private Vector3 bottomDrawerRClosedPosition;
+
+    [Header("Master Bedroom")]
+
+    [SerializeField] private GameObject masterBedroomDoor;
+    [SerializeField] private Button masterBedroomDoorButton;
+    [SerializeField] private GameObject masterBedroomWindowLeft;
+    [SerializeField] private GameObject masterBedroomWindowRight;
+    [SerializeField] private Slider masterBedroomWindowSlider;
+    [SerializeField] private TMP_Text masterBedroomWindowText;
+    [SerializeField] private GameObject masterBedroomBlanket;
+    [SerializeField] private Slider masterBedroomBlanketSlider;
+    [SerializeField] private TMP_Text masterBedroomBlanketText;
+    [SerializeField] private GameObject masterBedroomPillow;
+    [SerializeField] private Slider masterBedroomPillowSlider;
+    [SerializeField] private TMP_Text masterBedroomPillowText;
+    [SerializeField] private Renderer masterBedroomGlassRenderer;
+    [SerializeField] private Button masterBedroomGlassTintButton;
+    [SerializeField, Range(30f, 240f)] private float masterBedroomRotationSpeed = 120f;
+    [SerializeField] private float masterBedroomMoveSpeed = 1.2f;
+
+    private bool isMasterBedroomDoorOpen;
+    private bool isMasterBedroomGlassTinted;
+    private float masterBedroomWindowAmount;
+    private float masterBedroomBlanketAmount;
+    private float masterBedroomPillowAngle;
+    private Quaternion masterBedroomDoorClosedRotation;
+    private Quaternion masterBedroomDoorOpenRotation;
+    private Vector3 masterBedroomWindowLeftClosedPosition;
+    private Vector3 masterBedroomWindowRightClosedPosition;
+    private Vector3 masterBedroomBlanketClosedPosition;
+    private Quaternion masterBedroomPillowClosedRotation;
+    private Color masterBedroomGlassOriginalColor;
+    private MaterialPropertyBlock masterBedroomGlassPropertyBlock;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
-    private void Start()
+private void Start()
     {
         ShowMainMenu();
         ApplyMenuTheme();
 
         livingRoomButton.onClick.AddListener(ShowLivingRoomMenu);
         livingRoomBackButton.onClick.AddListener(ShowMainMenu);
+        livingRoomWashroomButton.onClick.AddListener(ShowLivingRoomWashroomMenu);
+        livingRoomWashroomBackButton.onClick.AddListener(ShowLivingRoomMenu);
+        masterBedroomMenuButton.onClick.AddListener(ShowMasterBedroomMenu);
+        masterBedroomBackButton.onClick.AddListener(ShowMainMenu);
+
 
         sofa1InitialPosition = sofa1.transform.position;
         sofa2InitialPosition = sofa2.transform.position;
@@ -166,6 +269,83 @@ public class LuckyScript : MonoBehaviour
         tableSliderx.onValueChanged.AddListener(OnTableSliderXChanged);
         tableSlidery.onValueChanged.AddListener(OnTableSliderYChanged);
 
+        initialWashroomDoorPosition = WashroomDoor.transform.localRotation;
+        openWashroomDoorPosition = initialWashroomDoorPosition * Quaternion.Euler(0f, 0f, -90f);
+        WashroomDoorButton.onClick.AddListener(ToggleWashroomDoor);
+        UpdateButtonText(WashroomDoorButton, "Open Washroom", "Close Washroom", isWashroomDoorOpen);
+
+        initialWashroomSeatPosition = WashroomSeat.transform.localRotation;
+        float lidOpenAngle = 220f + WashroomSeat.transform.localEulerAngles.x;
+        openWashroomSeatPosition = initialWashroomSeatPosition * Quaternion.Euler(lidOpenAngle, 0f, 0f);
+        WashroomSeatButton.onClick.AddListener(ToggleWashroomSeat);
+        UpdateButtonText(WashroomSeatButton, "Open Seat Lid", "Close Seat Lid", isWashroomSeatOpen);
+
+        initialWashroomFlushPosition = WashroomFlush.transform.localPosition;
+        pressedWashroomFlushPosition = initialWashroomFlushPosition + Vector3.down * flushPressDistance;
+        WashroomFlushButton.onClick.AddListener(PressWashroomFlush);
+
+        initialLeftCabinetDoorPosition = Quaternion.identity;
+        initialRightCabinetDoorPosition = Quaternion.identity;
+        LeftDoor.transform.localRotation = initialLeftCabinetDoorPosition;
+        RightDoor.transform.localRotation = initialRightCabinetDoorPosition;
+        openLeftCabinetDoorPosition = initialLeftCabinetDoorPosition * Quaternion.Euler(0f, 0f, -90f);
+        openRightCabinetDoorPosition = initialRightCabinetDoorPosition * Quaternion.Euler(0f, 0f, -90f);
+        MiddleCabinetButton.onClick.AddListener(ToggleMiddleCabinet);
+        UpdateButtonText(MiddleCabinetButton, "Open Middle Cabinet", "Close Middle Cabinet", isMiddleCabinetOpen);
+
+        topDrawerLClosedPosition = WithDrawerY(TopDrawerL.transform.localPosition, ClosedDrawerY);
+        middleDrawerLClosedPosition = WithDrawerY(MiddleDrawerL.transform.localPosition, ClosedDrawerY);
+        bottomDrawerLClosedPosition = WithDrawerY(BottomDrawerL.transform.localPosition, ClosedDrawerY);
+        topDrawerRClosedPosition = WithDrawerY(TopDrawerR.transform.localPosition, ClosedDrawerY);
+        middleDrawerRClosedPosition = WithDrawerY(MiddleDrawerR.transform.localPosition, ClosedDrawerY);
+        bottomDrawerRClosedPosition = WithDrawerY(BottomDrawerR.transform.localPosition, ClosedDrawerY);
+
+        TopDrawerL.transform.localPosition = topDrawerLClosedPosition;
+        MiddleDrawerL.transform.localPosition = middleDrawerLClosedPosition;
+        BottomDrawerL.transform.localPosition = bottomDrawerLClosedPosition;
+        TopDrawerR.transform.localPosition = topDrawerRClosedPosition;
+        MiddleDrawerR.transform.localPosition = middleDrawerRClosedPosition;
+        BottomDrawerR.transform.localPosition = bottomDrawerRClosedPosition;
+
+        selectedLeftDrawer = DrawerLDropdown.value;
+        selectedRightDrawer = DrawerRDropdown.value;
+        DrawerLDropdown.onValueChanged.AddListener(OnLeftDrawerChanged);
+        DrawerRDropdown.onValueChanged.AddListener(OnRightDrawerChanged);
+        masterBedroomDoorClosedRotation = masterBedroomDoor.transform.localRotation;
+        masterBedroomDoorOpenRotation = masterBedroomDoorClosedRotation * Quaternion.Euler(0f, 0f, -100f);
+        masterBedroomDoorButton.onClick.AddListener(ToggleMasterBedroomDoor);
+        UpdateButtonText(masterBedroomDoorButton, "Open Door", "Close Door", isMasterBedroomDoorOpen);
+
+        masterBedroomWindowLeftClosedPosition = masterBedroomWindowLeft.transform.localPosition;
+        masterBedroomWindowRightClosedPosition = masterBedroomWindowRight.transform.localPosition;
+        masterBedroomWindowSlider.minValue = -1f;
+        masterBedroomWindowSlider.maxValue = 1f;
+        masterBedroomWindowSlider.value = 0f;
+        masterBedroomWindowSlider.onValueChanged.AddListener(OnMasterBedroomWindowChanged);
+        OnMasterBedroomWindowChanged(0f);
+
+        masterBedroomBlanketClosedPosition = masterBedroomBlanket.transform.localPosition;
+        masterBedroomBlanketSlider.minValue = 0f;
+        masterBedroomBlanketSlider.maxValue = 1f;
+        masterBedroomBlanketSlider.value = 0f;
+        masterBedroomBlanketSlider.onValueChanged.AddListener(OnMasterBedroomBlanketChanged);
+        OnMasterBedroomBlanketChanged(0f);
+
+        masterBedroomPillowClosedRotation = masterBedroomPillow.transform.localRotation;
+        masterBedroomPillowSlider.minValue = -45f;
+        masterBedroomPillowSlider.maxValue = 45f;
+        masterBedroomPillowSlider.value = 0f;
+        masterBedroomPillowSlider.onValueChanged.AddListener(OnMasterBedroomPillowChanged);
+        OnMasterBedroomPillowChanged(0f);
+
+        masterBedroomGlassPropertyBlock = new MaterialPropertyBlock();
+        Material glassMaterial = masterBedroomGlassRenderer.sharedMaterial;
+        masterBedroomGlassOriginalColor =
+            glassMaterial != null && glassMaterial.HasProperty(BaseColorProperty)
+                ? glassMaterial.GetColor(BaseColorProperty)
+                : Color.white;
+        masterBedroomGlassTintButton.onClick.AddListener(ToggleMasterBedroomGlassTint);
+        ApplyMasterBedroomGlassTint();
     }
 
     private void OpenGate()
@@ -214,6 +394,119 @@ public class LuckyScript : MonoBehaviour
         }
     }
 
+    private void ToggleWashroomDoor()
+    {
+        isWashroomDoorOpen = !isWashroomDoorOpen;
+        UpdateButtonText(WashroomDoorButton, "Open Washroom", "Close Washroom", isWashroomDoorOpen);
+    }
+
+    private void ToggleWashroomSeat()
+    {
+        isWashroomSeatOpen = !isWashroomSeatOpen;
+        UpdateButtonText(WashroomSeatButton, "Open Seat Lid", "Close Seat Lid", isWashroomSeatOpen);
+    }
+
+    private void PressWashroomFlush()
+    {
+        isWashroomFlushPressed = true;
+        flushHoldTimer = 0f;
+    }
+
+    private void ToggleMiddleCabinet()
+    {
+        isMiddleCabinetOpen = !isMiddleCabinetOpen;
+        UpdateButtonText(MiddleCabinetButton, "Open Middle Cabinet", "Close Middle Cabinet", isMiddleCabinetOpen);
+    }
+
+    private void OnLeftDrawerChanged(int value)
+    {
+        selectedLeftDrawer = value;
+    }
+
+    private void OnRightDrawerChanged(int value)
+    {
+        selectedRightDrawer = value;
+    }
+
+    private static Vector3 WithDrawerY(Vector3 position, float y)
+    {
+        position.y = y;
+        return position;
+    }
+
+    private static void UpdateButtonText(Button button, string closedText, string openText, bool isOpen)
+    {
+        TMP_Text label = button.GetComponentInChildren<TMP_Text>();
+        if (label != null)
+        {
+            label.text = isOpen ? openText : closedText;
+        }
+    }
+
+    private void ToggleMasterBedroomDoor()
+    {
+        isMasterBedroomDoorOpen = !isMasterBedroomDoorOpen;
+        UpdateButtonText(masterBedroomDoorButton, "Open Door", "Close Door", isMasterBedroomDoorOpen);
+    }
+
+    private void OnMasterBedroomWindowChanged(float value)
+    {
+        masterBedroomWindowAmount = value;
+
+        if (value < -0.05f)
+        {
+            masterBedroomWindowText.text = "Window: Left Open";
+        }
+        else if (value > 0.05f)
+        {
+            masterBedroomWindowText.text = "Window: Right Open";
+        }
+        else
+        {
+            masterBedroomWindowText.text = "Window: Closed";
+        }
+    }
+
+    private void OnMasterBedroomBlanketChanged(float value)
+    {
+        masterBedroomBlanketAmount = value;
+        masterBedroomBlanketText.text = $"Blanket Slide: {value * 100f:F0}%";
+    }
+
+    private void OnMasterBedroomPillowChanged(float value)
+    {
+        masterBedroomPillowAngle = value;
+        masterBedroomPillowText.text = $"Pillow Rotation: {value:F0}°";
+    }
+
+    private void ToggleMasterBedroomGlassTint()
+    {
+        isMasterBedroomGlassTinted = !isMasterBedroomGlassTinted;
+        ApplyMasterBedroomGlassTint();
+    }
+
+    private void ApplyMasterBedroomGlassTint()
+    {
+        Color tintColor = isMasterBedroomGlassTinted
+            ? new Color(0f, 0f, 0f, masterBedroomGlassOriginalColor.a)
+            : masterBedroomGlassOriginalColor;
+
+        masterBedroomGlassRenderer.GetPropertyBlock(masterBedroomGlassPropertyBlock, 0);
+        masterBedroomGlassPropertyBlock.SetColor(BaseColorProperty, tintColor);
+        masterBedroomGlassRenderer.SetPropertyBlock(masterBedroomGlassPropertyBlock, 0);
+
+        UpdateButtonText(
+            masterBedroomGlassTintButton,
+            "Tint Glass Black",
+            "Tint Glass White",
+            isMasterBedroomGlassTinted);
+    }
+
+    public void ShowMasterBedroomMenu()
+    {
+        ShowOnly(masterBedroomMenu);
+    }
+
     public void ShowMainMenu()
     {
         ShowOnly(mainMenu);
@@ -224,17 +517,25 @@ public class LuckyScript : MonoBehaviour
         ShowOnly(livingRoomMenu);
     }
 
+    public void ShowLivingRoomWashroomMenu()
+    {
+        ShowOnly(livingRoomWashroomMenu);
+    }
 
-    private void ShowOnly(GameObject selectedMenu)
+private void ShowOnly(GameObject selectedMenu)
     {
         mainMenu.SetActive(selectedMenu == mainMenu);
         livingRoomMenu.SetActive(selectedMenu == livingRoomMenu);
+        livingRoomWashroomMenu.SetActive(selectedMenu == livingRoomWashroomMenu);
+        masterBedroomMenu.SetActive(selectedMenu == masterBedroomMenu);
     }
 
-    public void ApplyMenuTheme()
+public void ApplyMenuTheme()
     {
         ApplyMenuThemeTo(mainMenu);
         ApplyMenuThemeTo(livingRoomMenu);
+        ApplyMenuThemeTo(livingRoomWashroomMenu);
+        ApplyMenuThemeTo(masterBedroomMenu);
     }
 
     private void ApplyMenuThemeTo(GameObject menu)
@@ -354,7 +655,7 @@ public class LuckyScript : MonoBehaviour
 
 
     // Update is called once per frame
-    private void Update()
+private void Update()
     {
         sofa1newPosition = sofa1InitialPosition + new Vector3(Sofa1Changedx, 0f, Sofa1Changedz);
         sofa2newPosition = sofa2InitialPosition + new Vector3(Sofa2Changedx, 0f, Sofa2Changedz);
@@ -363,31 +664,98 @@ public class LuckyScript : MonoBehaviour
         Quaternion targetLeftRotation = isGateOpen ? openLeftGatePosition : initialLeftGatePosition;
         Quaternion targetRightRotation = isGateOpen ? openRightGatePosition : initialRightGatePosition;
 
-        leftGate.transform.rotation = Quaternion.Slerp(
-            leftGate.transform.rotation,
-            targetLeftRotation,
-            gateRotationSpeed * Time.deltaTime);
-
-        rightGate.transform.rotation = Quaternion.Slerp(
-            rightGate.transform.rotation,
-            targetRightRotation,
-            gateRotationSpeed * Time.deltaTime);
+        leftGate.transform.rotation = Quaternion.Slerp(leftGate.transform.rotation, targetLeftRotation, gateRotationSpeed * Time.deltaTime);
+        rightGate.transform.rotation = Quaternion.Slerp(rightGate.transform.rotation, targetRightRotation, gateRotationSpeed * Time.deltaTime);
 
         Quaternion targetLeftHouseRotation = isHouseGateOpen ? openLeftHouseGatePosition : initialLeftHouseGatePosition;
         Quaternion targetRightHouseRotation = isHouseGateOpen ? openRightHouseGatePosition : initialRightHouseGatePosition;
 
-        leftHouseGate.transform.rotation = Quaternion.Slerp(
-            leftHouseGate.transform.rotation,
-            targetLeftHouseRotation,
-            houseGateRotationSpeed * Time.deltaTime);
-
-        rightHouseGate.transform.rotation = Quaternion.Slerp(
-            rightHouseGate.transform.rotation,
-            targetRightHouseRotation,
-            houseGateRotationSpeed * Time.deltaTime);
+        leftHouseGate.transform.rotation = Quaternion.Slerp(leftHouseGate.transform.rotation, targetLeftHouseRotation, houseGateRotationSpeed * Time.deltaTime);
+        rightHouseGate.transform.rotation = Quaternion.Slerp(rightHouseGate.transform.rotation, targetRightHouseRotation, houseGateRotationSpeed * Time.deltaTime);
 
         sofa1.transform.position = Vector3.MoveTowards(sofa1.transform.position, sofa1newPosition, Time.deltaTime * 0.5f);
         sofa2.transform.position = Vector3.MoveTowards(sofa2.transform.position, sofa2newPosition, Time.deltaTime * 0.5f);
         table.transform.position = Vector3.MoveTowards(table.transform.position, tablenewPosition, Time.deltaTime * 0.5f);
+
+        Quaternion washroomDoorTarget = isWashroomDoorOpen ? openWashroomDoorPosition : initialWashroomDoorPosition;
+        WashroomDoor.transform.localRotation = Quaternion.RotateTowards(WashroomDoor.transform.localRotation, washroomDoorTarget, washroomRotationSpeed * 90f * Time.deltaTime);
+
+        Quaternion washroomSeatTarget = isWashroomSeatOpen ? openWashroomSeatPosition : initialWashroomSeatPosition;
+        WashroomSeat.transform.localRotation = Quaternion.RotateTowards(WashroomSeat.transform.localRotation, washroomSeatTarget, washroomRotationSpeed * 90f * Time.deltaTime);
+
+        Quaternion leftCabinetTarget = isMiddleCabinetOpen ? openLeftCabinetDoorPosition : initialLeftCabinetDoorPosition;
+        Quaternion rightCabinetTarget = isMiddleCabinetOpen ? openRightCabinetDoorPosition : initialRightCabinetDoorPosition;
+        LeftDoor.transform.localRotation = Quaternion.RotateTowards(LeftDoor.transform.localRotation, leftCabinetTarget, washroomRotationSpeed * 90f * Time.deltaTime);
+        RightDoor.transform.localRotation = Quaternion.RotateTowards(RightDoor.transform.localRotation, rightCabinetTarget, washroomRotationSpeed * 90f * Time.deltaTime);
+
+        TopDrawerL.transform.localPosition = Vector3.MoveTowards(TopDrawerL.transform.localPosition, WithDrawerY(topDrawerLClosedPosition, selectedLeftDrawer == 1 ? OpenDrawerY : ClosedDrawerY), DrawerMoveSpeed * Time.deltaTime);
+        MiddleDrawerL.transform.localPosition = Vector3.MoveTowards(MiddleDrawerL.transform.localPosition, WithDrawerY(middleDrawerLClosedPosition, selectedLeftDrawer == 2 ? OpenDrawerY : ClosedDrawerY), DrawerMoveSpeed * Time.deltaTime);
+        BottomDrawerL.transform.localPosition = Vector3.MoveTowards(BottomDrawerL.transform.localPosition, WithDrawerY(bottomDrawerLClosedPosition, selectedLeftDrawer == 3 ? OpenDrawerY : ClosedDrawerY), DrawerMoveSpeed * Time.deltaTime);
+
+        TopDrawerR.transform.localPosition = Vector3.MoveTowards(TopDrawerR.transform.localPosition, WithDrawerY(topDrawerRClosedPosition, selectedRightDrawer == 1 ? OpenDrawerY : ClosedDrawerY), DrawerMoveSpeed * Time.deltaTime);
+        MiddleDrawerR.transform.localPosition = Vector3.MoveTowards(MiddleDrawerR.transform.localPosition, WithDrawerY(middleDrawerRClosedPosition, selectedRightDrawer == 2 ? OpenDrawerY : ClosedDrawerY), DrawerMoveSpeed * Time.deltaTime);
+        BottomDrawerR.transform.localPosition = Vector3.MoveTowards(BottomDrawerR.transform.localPosition, WithDrawerY(bottomDrawerRClosedPosition, selectedRightDrawer == 3 ? OpenDrawerY : ClosedDrawerY), DrawerMoveSpeed * Time.deltaTime);
+
+        Vector3 flushTarget = isWashroomFlushPressed ? pressedWashroomFlushPosition : initialWashroomFlushPosition;
+        WashroomFlush.transform.localPosition = Vector3.MoveTowards(WashroomFlush.transform.localPosition, flushTarget, flushMoveSpeed * Time.deltaTime);
+
+        if (isWashroomFlushPressed &&
+            Vector3.Distance(WashroomFlush.transform.localPosition, pressedWashroomFlushPosition) < 0.0001f)
+        {
+            flushHoldTimer += Time.deltaTime;
+            if (flushHoldTimer >= 0.12f)
+            {
+                isWashroomFlushPressed = false;
+            }
+        }
+        Quaternion masterBedroomDoorTarget = isMasterBedroomDoorOpen
+            ? masterBedroomDoorOpenRotation
+            : masterBedroomDoorClosedRotation;
+        masterBedroomDoor.transform.localRotation = Quaternion.RotateTowards(
+            masterBedroomDoor.transform.localRotation,
+            masterBedroomDoorTarget,
+            masterBedroomRotationSpeed * Time.deltaTime);
+
+        Vector3 leftWindowTarget = masterBedroomWindowLeftClosedPosition;
+        Vector3 rightWindowTarget = masterBedroomWindowRightClosedPosition;
+
+        if (masterBedroomWindowAmount < 0f)
+        {
+            leftWindowTarget.x = Mathf.Lerp(
+                masterBedroomWindowLeftClosedPosition.x,
+                masterBedroomWindowRightClosedPosition.x,
+                -masterBedroomWindowAmount);
+        }
+        else
+        {
+            rightWindowTarget.x = Mathf.Lerp(
+                masterBedroomWindowRightClosedPosition.x,
+                masterBedroomWindowLeftClosedPosition.x,
+                masterBedroomWindowAmount);
+        }
+
+        float windowMoveSpeed = masterBedroomMoveSpeed * 0.01f;
+        masterBedroomWindowLeft.transform.localPosition = Vector3.MoveTowards(
+            masterBedroomWindowLeft.transform.localPosition,
+            leftWindowTarget,
+            windowMoveSpeed * Time.deltaTime);
+        masterBedroomWindowRight.transform.localPosition = Vector3.MoveTowards(
+            masterBedroomWindowRight.transform.localPosition,
+            rightWindowTarget,
+            windowMoveSpeed * Time.deltaTime);
+
+        Vector3 blanketTarget =
+            masterBedroomBlanketClosedPosition + Vector3.left * (masterBedroomBlanketAmount * 0.8f);
+        masterBedroomBlanket.transform.localPosition = Vector3.MoveTowards(
+            masterBedroomBlanket.transform.localPosition,
+            blanketTarget,
+            masterBedroomMoveSpeed * Time.deltaTime);
+
+        Quaternion pillowTarget =
+            masterBedroomPillowClosedRotation * Quaternion.Euler(0f, masterBedroomPillowAngle, 0f);
+        masterBedroomPillow.transform.localRotation = Quaternion.RotateTowards(
+            masterBedroomPillow.transform.localRotation,
+            pillowTarget,
+            masterBedroomRotationSpeed * Time.deltaTime);
     }
 }
